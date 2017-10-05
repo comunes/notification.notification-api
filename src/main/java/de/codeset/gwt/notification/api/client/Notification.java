@@ -20,385 +20,413 @@ import de.codeset.gwt.notification.api.client.eventing.show.NotificationShowEven
 import de.codeset.gwt.notification.api.client.eventing.show.NotificationShowHandler;
 
 /**
- * @author Marcel Konopka 
+ * @author Marcel Konopka
  *
  * @see <a href="https://github.com/MarZl/notification-api">https://github.com/MarZl/notification-api</a>
- * 
+ *
  */
 public class Notification implements HasNotificationClickHandlers, HasNotificationErrorHandlers, HasNotificationShowHandlers, HasNotificationCloseHandlers {
 
-	private NativeNotification nativeNotification;
-	private HandlerManager handlerManager;
-	private boolean initHandlers;
+  private NativeNotification nativeNotification;
+  private HandlerManager handlerManager;
+  private boolean initHandlers;
 
-	private Notification(String title, NotificationOptions options) {
-		nativeNotification = NativeNotification.create(this, title, options);
-	}
-	
-	/**
-	 * Return a new Notification if supported, and null otherwise.
-	 * 
-	 * @param title
-	 *            The title that must be shown within the notification
-	 * @param options
-	 *            (optional) An object that allows to configure the notification
-	 */
-	public static Notification createIfSupported(String title, NotificationOptions options){
-		if(isSupported())
-			return new Notification(title, options);
-		return null;
-	}
-	
-	
-	/**
-	 * Returns if the browser supports Notifications.
-	 * 
-	 * @return supported
-	 */
-	public static boolean isSupported(){
-		return NativeNotification.isSupported();
-	}
-	
-	/**
-	 * This method is used to ask the user if he allows the page to display
-	 * notifications.
-	 * 
-	 * @param callback
-	 */
-	public static void requestPermission(NotificationPermissionCallback callback) {
-		NativeNotification.requestPermission(callback);
-	}
+  private Notification(String title, NotificationOptions options) {
+    nativeNotification = NativeNotification.create(this, title, options);
+  }
 
-	/**
-	 * A string representing the current permission to display notifications.
-	 * Possible value are: denied (the user refuses to have notifications
-	 * displayed), granted (the user accepts to have notifications displayed),
-	 * or default (the user choice is unknown and therefore the browser will act
-	 * as if the value was denied).
-	 * 
-	 * @return permission
-	 */
-	public static NotificationPermission getPermission() {
-		return NotificationPermission.fromString(NativeNotification.getPermission());
-	}
+  /**
+   * Return a new Notification if supported, and null otherwise.
+   *
+   * @param title
+   *            The title that must be shown within the notification
+   * @param options
+   *            (optional) An object that allows to configure the notification
+   */
+  public static Notification createIfSupported(String title, NotificationOptions options){
+    if(isSupported())
+      return new Notification(title, options);
+    return null;
+  }
 
-	
-	/**
-	 * The title of the notification as specified in the options parameter of the constructor.
-	 * 
-	 * @return title
-	 */
-	public String getTitle() {
-		return nativeNotification.getTitle();
-	}
-	
-	/**
-	 * The text direction of the notification as specified in the options parameter of the constructor.
-	 * 
-	 * @return dir
-	 */
-	public String getDir() {
-		return nativeNotification.getDir();
-	}
-	
-	
-	/**
-	 * The language code of the notification as specified in the options parameter of the constructor.
-	 * 
-	 * @return lang
-	 */
-	public String getLang() {
-		return nativeNotification.getLang();
-	}
-	
-	/**
-	 * The body string of the notification as specified in the options parameter of the constructor.
-	 * 
-	 * @return
-	 */
-	public String getBody() {
-		return nativeNotification.getBody();
-	}
-	
-	
-	/**
-	 * The ID of the notification (if any) as specified in the options parameter of the constructor.
-	 * 
-	 * @return
-	 */
-	public String getTag() {
-		return nativeNotification.getTag();
-	}
-	
-	/**
-	 * The URL of the image used as an icon of the notification as specified in the options parameter of the constructor.
-	 * 
-	 * @return icon
-	 */
-	public String getIcon() {
-		return nativeNotification.getIcon();
-	}
-		
-	
-	/**
-	 * Returns a structured clone of the notification’s data.
-	 * 
-	 * @return data
-	 */
-	public String getData() {
-		return nativeNotification.getData();
-	}
-	
-	/**
-	 * A Boolean indicating that on devices with sufficiently large screens, a notification should remain active until the user clicks or dismisses it.
-	 * 
-	 * @return requireInteraction
-	 */
-	public boolean isInteractionRequired() {
-		return nativeNotification.getRequireInteraction();
-	}
-	
-	/**
-	 * Specifies whether the notification should be silent, i.e. no sounds or vibrations should be issued, regardless of the device settings.
-	 * 
-	 * @return silent
-	 */
-	public boolean isSilent() {
-		return nativeNotification.getSilent();
-	}
-	
-	/**
-	 * This method allows to programmatically close a notification.
-	 */
-	public void close() {
-		nativeNotification.close();
-	}
 
-	// //////////
+  /**
+   * Returns if the browser supports Notifications.
+   *
+   * @return supported
+   */
+  public static boolean isSupported(){
+    return NativeNotification.isSupported();
+  }
 
-	protected HandlerManager ensureHandlers() {
-		if(!initHandlers)
-			initHandler();
-		return handlerManager == null ? handlerManager = new HandlerManager(this) : handlerManager;
-	}
+  /**
+   * This method is used to ask the user if he allows the page to display
+   * notifications.
+   *
+   * @param callback
+   */
+  public static void requestPermission(NotificationPermissionCallback callback) {
+    NativeNotification.requestPermission(callback);
+  }
 
-	protected final <H extends EventHandler> HandlerRegistration addHandler(final H handler, GwtEvent.Type<H> type) {
-		return ensureHandlers().addHandler(type, handler);
-	}
+  /**
+   * A string representing the current permission to display notifications.
+   * Possible value are: denied (the user refuses to have notifications
+   * displayed), granted (the user accepts to have notifications displayed),
+   * or default (the user choice is unknown and therefore the browser will act
+   * as if the value was denied).
+   *
+   * @return permission
+   */
+  public static NotificationPermission getPermission() {
+    return NotificationPermission.fromString(NativeNotification.getPermission());
+  }
 
-	// //////////
 
-	@Override
-	public void fireEvent(GwtEvent<?> event) {
-		handlerManager.fireEvent(event);
-	}
+  /**
+   * The title of the notification as specified in the options parameter of the constructor.
+   *
+   * @return title
+   */
+  public String getTitle() {
+    return nativeNotification.getTitle();
+  }
 
-	// //////////
+  /**
+   * The text direction of the notification as specified in the options parameter of the constructor.
+   *
+   * @return dir
+   */
+  public String getDir() {
+    return nativeNotification.getDir();
+  }
 
-	@Override
-	public HandlerRegistration addClickHandler(NotificationClickHandler handler) {
-		return addHandler(handler, NotificationClickEvent.getType());
-	}
 
-	@Override
-	public HandlerRegistration addErrorHandler(NotificationErrorHandler handler) {
-		return addHandler(handler, NotificationErrorEvent.getType());
-	}
+  /**
+   * The language code of the notification as specified in the options parameter of the constructor.
+   *
+   * @return lang
+   */
+  public String getLang() {
+    return nativeNotification.getLang();
+  }
 
-	@Override
-	@Deprecated
-	public HandlerRegistration addCloseHandler(NotificationCloseHandler handler) {
-		return addHandler(handler, NotificationCloseEvent.getType());
-	}
+  /**
+   * The body string of the notification as specified in the options parameter of the constructor.
+   *
+   * @return
+   */
+  public String getBody() {
+    return nativeNotification.getBody();
+  }
 
-	@Override
-	@Deprecated
-	public HandlerRegistration addShowHandler(NotificationShowHandler handler) {
-		return addHandler(handler, NotificationShowEvent.getType());
-	}
 
-	private void initHandler() {
-		initHandlers = true;
-		
-		nativeNotification.addEventListener("close", new Callback() {
+  /**
+   * The ID of the notification (if any) as specified in the options parameter of the constructor.
+   *
+   * @return
+   */
+  public String getTag() {
+    return nativeNotification.getTag();
+  }
 
-			@Override
-			public void call(Notification notification) {
-				fireEvent(new NotificationCloseEvent(notification));
-			}
-		});
-		nativeNotification.addEventListener("click", new Callback() {
+  /**
+   * The URL of the image used as an icon of the notification as specified in the options parameter of the constructor.
+   *
+   * @return icon
+   */
+  public String getIcon() {
+    return nativeNotification.getIcon();
+  }
 
-			@Override
-			public void call(Notification notification) {
-				fireEvent(new NotificationClickEvent(notification));
-			}
-		});
-		nativeNotification.addEventListener("error", new Callback() {
 
-			@Override
-			public void call(Notification notification) {
-				fireEvent(new NotificationErrorEvent(notification));
-			}
-		});
-		nativeNotification.addEventListener("show", new Callback() {
+   /**
+   * The  URL of an image to be displayed as part of the notification, as specified in the options parameter of the constructor.
+   *
+   * @return image
+   */
+  public String getImage() {
+    return nativeNotification.getImage();
+  }
 
-			@Override
-			public void call(Notification notification) {
-				fireEvent(new NotificationShowEvent(notification));
-			}
-		});
-	}
+  /**
+   * Returns a structured clone of the notification’s data.
+   *
+   * @return data
+   */
+  public String getData() {
+    return nativeNotification.getData();
+  }
 
-	private static class NativeNotification extends JavaScriptObject {
+  /**
+   * A Boolean indicating that on devices with sufficiently large screens, a notification should remain active until the user clicks or dismisses it.
+   *
+   * @return requireInteraction
+   */
+  public boolean isInteractionRequired() {
+    return nativeNotification.getRequireInteraction();
+  }
 
-		protected NativeNotification() {
-		}
+  /**
+   * Specifies whether the notification should be silent, i.e. no sounds or vibrations should be issued, regardless of the device settings.
+   *
+   * @return silent
+   */
+  public boolean isSilent() {
+    return nativeNotification.getSilent();
+  }
 
-		public native static NativeNotification create(Notification notification, String title, JavaScriptObject options)/*-{
-			nativeNotification = new $wnd.Notification(title, options);
-			nativeNotification.gwtNotification = notification;
-			return nativeNotification;
-		}-*/;
-		
-		public native static boolean isSupported()/*-{
-			return (typeof(Notification) == "function" && typeof(Notification.prototype) == "object");
-		}-*/;
+  /**
+   * This method allows to programmatically close a notification.
+   */
+  public void close() {
+    nativeNotification.close();
+  }
 
-		public native static void requestPermission(NotificationPermissionCallback callback)/*-{
-			$wnd.Notification.requestPermission(function(permission) {
-				if(callback != null){
-					var perm = @de.codeset.gwt.notification.api.client.NotificationPermission::fromString(Ljava/lang/String;)(permission);
-					callback.@de.codeset.gwt.notification.api.client.Notification.NotificationPermissionCallback::call(Lde/codeset/gwt/notification/api/client/NotificationPermission;)(perm);
-				}	
-			});
-		}-*/;
+  // //////////
 
-		public native final static String getPermission()/*-{
-			return $wnd.Notification.permission;
-		}-*/;
+  protected HandlerManager ensureHandlers() {
+    if(!initHandlers)
+      initHandler();
+    return handlerManager == null ? handlerManager = new HandlerManager(this) : handlerManager;
+  }
 
-		public native final String getTitle() /*-{
-			return this.title;
-		}-*/;
-		
-		public native final String getDir() /*-{
-			return this.dir;
-		}-*/;
-		
-		public native final String getLang() /*-{
-			return this.lang;
-		}-*/;
-		
-		public native final String getBody() /*-{
-			return this.body;
-		}-*/;
-		
-		public native final String getTag() /*-{
-			return this.tag;
-		}-*/;
-		
-		public native final String getIcon() /*-{
-			return this.icon;
-		}-*/;
+  protected final <H extends EventHandler> HandlerRegistration addHandler(final H handler, GwtEvent.Type<H> type) {
+    return ensureHandlers().addHandler(type, handler);
+  }
 
-		public native final String getData() /*-{
-			return this.data;
-		}-*/;
+  // //////////
 
-		public native final boolean getRequireInteraction() /*-{
-			return this.requireInteraction;
-		}-*/;
-		
-		public native final boolean getSilent() /*-{
-			return this.silent;
-		}-*/;
+  @Override
+  public void fireEvent(GwtEvent<?> event) {
+    handlerManager.fireEvent(event);
+  }
 
-		public native final void close()/*-{
-			this.close();
-		}-*/;
+  // //////////
 
-		public native final void addEventListener(String event, Callback callback)/*-{
-			this.addEventListener(event, function() {
-				if(callback != null){
-					callback.@de.codeset.gwt.notification.api.client.Notification.Callback::call(Lde/codeset/gwt/notification/api/client/Notification;)(this.gwtNotification);
-				}
-			});
-		}-*/;
-	}
+  @Override
+  public HandlerRegistration addClickHandler(NotificationClickHandler handler) {
+    return addHandler(handler, NotificationClickEvent.getType());
+  }
 
-	public static class NotificationOptions extends JavaScriptObject {
+  @Override
+  public HandlerRegistration addErrorHandler(NotificationErrorHandler handler) {
+    return addHandler(handler, NotificationErrorEvent.getType());
+  }
 
-		protected NotificationOptions() {
-		}
+  @Override
+  @Deprecated
+  public HandlerRegistration addCloseHandler(NotificationCloseHandler handler) {
+    return addHandler(handler, NotificationCloseEvent.getType());
+  }
 
-		public native static NotificationOptions create()/*-{
-			return {};
-		}-*/;
+  @Override
+  @Deprecated
+  public HandlerRegistration addShowHandler(NotificationShowHandler handler) {
+    return addHandler(handler, NotificationShowEvent.getType());
+  }
 
-		/**
-		 * @param lang
-		 *            The code lang used by the notification as defined within
-		 *            the constructor options.
-		 * @return this
-		 */
-		public native final NotificationOptions lang(String lang)/*-{
-			this.lang = lang;
-			return this;
-		}-*/;
+  private void initHandler() {
+    initHandlers = true;
 
-		/**
-		 * @param body
-		 *            The body string used by the notification as defined within
-		 *            the constructor options.
-		 * @return this
-		 */
-		public native final NotificationOptions body(String body)/*-{
-			this.body = body;
-			return this;
-		}-*/;
+    nativeNotification.addEventListener("close", new Callback() {
 
-		/**
-		 * @param tag
-		 *            The id of the notification (if any) as defined within the
-		 *            constructor options.
-		 * @return this
-		 */
-		public native final NotificationOptions tag(String tag)/*-{
-			this.tag = tag;
-			return this;
-		}-*/;
+      @Override
+      public void call(Notification notification) {
+        fireEvent(new NotificationCloseEvent(notification));
+      }
+    });
+    nativeNotification.addEventListener("click", new Callback() {
 
-		/**
-		 * @param icon
-		 *            The URL of the image used as an icon as defined within the
-		 *            constructor options.
-		 * @return this
-		 */
-		public native final NotificationOptions icon(String icon)/*-{
-			this.icon = icon;
-			return this;
-		}-*/;
+      @Override
+      public void call(Notification notification) {
+        fireEvent(new NotificationClickEvent(notification));
+      }
+    });
+    nativeNotification.addEventListener("error", new Callback() {
 
-		/**
-		 * @param dir
-		 *            The direction used by the notification as defined within
-		 *            the constructor options.
-		 * @return this
-		 */
-		public native final NotificationOptions dir(String dir)/*-{
-			this.dir = dir;
-			return this;
-		}-*/;
-	}
+      @Override
+      public void call(Notification notification) {
+        fireEvent(new NotificationErrorEvent(notification));
+      }
+    });
+    nativeNotification.addEventListener("show", new Callback() {
 
-	public static interface NotificationPermissionCallback {
+      @Override
+      public void call(Notification notification) {
+        fireEvent(new NotificationShowEvent(notification));
+      }
+    });
+  }
 
-		void call(NotificationPermission permission);
-	}
+  private static class NativeNotification extends JavaScriptObject {
 
-	protected static interface Callback {
+    protected NativeNotification() {
+    }
 
-		void call(Notification notification);
-	}
+    public native static NativeNotification create(Notification notification, String title, JavaScriptObject options)/*-{
+      nativeNotification = new $wnd.Notification(title, options);
+      nativeNotification.gwtNotification = notification;
+      return nativeNotification;
+    }-*/;
+
+    public native static boolean isSupported()/*-{
+      return (typeof(Notification) == "function" && typeof(Notification.prototype) == "object");
+    }-*/;
+
+    public native static void requestPermission(NotificationPermissionCallback callback)/*-{
+      $wnd.Notification.requestPermission(function(permission) {
+        if(callback != null){
+          var perm = @de.codeset.gwt.notification.api.client.NotificationPermission::fromString(Ljava/lang/String;)(permission);
+          callback.@de.codeset.gwt.notification.api.client.Notification.NotificationPermissionCallback::call(Lde/codeset/gwt/notification/api/client/NotificationPermission;)(perm);
+        }
+      });
+    }-*/;
+
+    public native final static String getPermission()/*-{
+      return $wnd.Notification.permission;
+    }-*/;
+
+    public native final String getTitle() /*-{
+      return this.title;
+    }-*/;
+
+    public native final String getDir() /*-{
+      return this.dir;
+    }-*/;
+
+    public native final String getLang() /*-{
+      return this.lang;
+    }-*/;
+
+    public native final String getBody() /*-{
+      return this.body;
+    }-*/;
+
+    public native final String getTag() /*-{
+      return this.tag;
+    }-*/;
+
+    public native final String getIcon() /*-{
+      return this.icon;
+    }-*/;
+
+    public native final String getImage() /*-{
+    return this.image;
+    }-*/;
+
+    public native final String getData() /*-{
+      return this.data;
+    }-*/;
+
+    public native final boolean getRequireInteraction() /*-{
+      return this.requireInteraction;
+    }-*/;
+
+    public native final boolean getSilent() /*-{
+      return this.silent;
+    }-*/;
+
+    public native final void close()/*-{
+      this.close();
+    }-*/;
+
+    public native final void addEventListener(String event, Callback callback)/*-{
+      this.addEventListener(event, function() {
+        if(callback != null){
+          callback.@de.codeset.gwt.notification.api.client.Notification.Callback::call(Lde/codeset/gwt/notification/api/client/Notification;)(this.gwtNotification);
+        }
+      });
+    }-*/;
+  }
+
+  public static class NotificationOptions extends JavaScriptObject {
+
+    protected NotificationOptions() {
+    }
+
+    public native static NotificationOptions create()/*-{
+      return {};
+    }-*/;
+
+    /**
+     * @param lang
+     *            The code lang used by the notification as defined within
+     *            the constructor options.
+     * @return this
+     */
+    public native final NotificationOptions lang(String lang)/*-{
+      this.lang = lang;
+      return this;
+    }-*/;
+
+    /**
+     * @param body
+     *            The body string used by the notification as defined within
+     *            the constructor options.
+     * @return this
+     */
+    public native final NotificationOptions body(String body)/*-{
+      this.body = body;
+      return this;
+    }-*/;
+
+    /**
+     * @param tag
+     *            The id of the notification (if any) as defined within the
+     *            constructor options.
+     * @return this
+     */
+    public native final NotificationOptions tag(String tag)/*-{
+      this.tag = tag;
+      return this;
+    }-*/;
+
+    /**
+     * @param icon
+     *            The URL of the image used as an icon as defined within the
+     *            constructor options.
+     * @return this
+     */
+    public native final NotificationOptions icon(String icon)/*-{
+      this.icon = icon;
+      return this;
+    }-*/;
+
+    public native final NotificationOptions requireInteraction(Boolean requireInteraction )/*-{
+      this.requireInteraction = requireInteraction;
+      return this;
+    }-*/;
+
+    /**
+     * @param image
+     *            The  URL of an image to be displayed as part of the notification, as specified in the options parameter of the constructor.
+     * @return this
+     */
+    public native final NotificationOptions image(String image)/*-{
+      this.image = image;
+      return this;
+    }-*/;
+
+    /**
+     * @param dir
+     *            The direction used by the notification as defined within
+     *            the constructor options.
+     * @return this
+     */
+    public native final NotificationOptions dir(String dir)/*-{
+      this.dir = dir;
+      return this;
+    }-*/;
+  }
+
+  public static interface NotificationPermissionCallback {
+
+    void call(NotificationPermission permission);
+  }
+
+  protected static interface Callback {
+
+    void call(Notification notification);
+  }
 }
